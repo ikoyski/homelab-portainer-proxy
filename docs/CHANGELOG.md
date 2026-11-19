@@ -13,3 +13,12 @@ Notable project changes in reverse chronological order.
 
 ### Status
 - Skeleton only: no proxy functionality, no first Maven/CI run yet, nothing deployed.
+
+## 2026-11-18 (verification update)
+
+### Verified
+- The operator reports that the initial local Maven build completed successfully.
+
+### Pending
+- GitHub Actions CI has not yet been independently verified.
+- Proxy functionality remains unimplemented; nothing has been deployed and this proxy has not contacted Portainer.
