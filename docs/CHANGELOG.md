@@ -12,7 +12,7 @@ Notable project changes in reverse chronological order.
 - Engineering rules (`CLAUDE.md`), project status, proposed design and ADR-0001 (Proposed).
 
 ### Status
-- Skeleton only: no proxy functionality, no first Maven/CI run yet, nothing deployed.
+- Skeleton only: no proxy functionality; initial local Maven build subsequently reported successful; GitHub Actions CI verification pending; nothing deployed.
 
 ## 2026-11-18 (verification update)
 
