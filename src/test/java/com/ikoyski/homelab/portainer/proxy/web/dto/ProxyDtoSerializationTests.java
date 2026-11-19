@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Test;
 
 class ProxyDtoSerializationTests {
@@ -65,8 +65,8 @@ class ProxyDtoSerializationTests {
     }
 
     private Set<String> fieldNames(JsonNode node) {
-        return StreamSupport.stream(
-                ((Iterable<String>) () -> node.fieldNames()).spliterator(), false)
-                .collect(java.util.stream.Collectors.toSet());
+        Set<String> names = new HashSet<>();
+        node.fieldNames().forEachRemaining(names::add);
+        return names;
     }
 }
