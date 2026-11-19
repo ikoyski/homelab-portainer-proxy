@@ -4,3 +4,8 @@ spring:
       enabled: false
   application:
     name: homelab-portainer-proxy
+
+# Test fixture only. Never reuse this value outside automated tests.
+proxy:
+  security:
+    shared-token: "test-only-token-value-32-bytes-long"
