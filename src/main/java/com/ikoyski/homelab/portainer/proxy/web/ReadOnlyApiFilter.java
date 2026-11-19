@@ -23,7 +23,8 @@ public final class ReadOnlyApiFilter extends OncePerRequestFilter {
     private static final Map<String, String> ERRORS = Map.of(
             "method_not_allowed", "{\"error\":\"method_not_allowed\"}",
             "not_found", "{\"error\":\"not_found\"}",
-            "query_parameters_not_allowed", "{\"error\":\"query_parameters_not_allowed\"}"
+            "query_parameters_not_allowed", "{\"error\":\"query_parameters_not_allowed\"}",
+            "request_body_not_allowed", "{\"error\":\"request_body_not_allowed\"}"
     );
 
     private final InboundOperationCatalog catalog;
@@ -56,6 +57,11 @@ public final class ReadOnlyApiFilter extends OncePerRequestFilter {
         if (request.getQueryString() != null || !request.getParameterMap().isEmpty()) {
             writeError(response, HttpServletResponse.SC_BAD_REQUEST,
                     "query_parameters_not_allowed");
+            return;
+        }
+
+        if (request.getContentLengthLong() > 0 || request.getHeader("Transfer-Encoding") != null) {
+            writeError(response, HttpServletResponse.SC_BAD_REQUEST, "request_body_not_allowed");
             return;
         }
 
