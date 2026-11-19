@@ -6,7 +6,7 @@ This repository is public; runtime endpoints, credentials, certificates and trus
 
 ## Status
 
-**Skeleton only.** No proxy functionality is implemented, and it has not yet had its first Maven build or CI run. See [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
+**Skeleton only; initial local Maven build successful.** The operator reports that the initial Maven build completed successfully. No proxy functionality is implemented, and GitHub Actions CI has not yet been independently verified. See [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
 
 ## Technology
 
