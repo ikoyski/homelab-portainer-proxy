@@ -10,16 +10,16 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| Codebase skeleton | Created | Java 21, Spring Boot 4, Config Client and Actuator. |
-| Caller authentication | Merged to master | Shared bearer filter, minimum 32 UTF-8 bytes, constant-time comparison and fail-closed startup validation. See ADR-0002. |
+| Codebase skeleton | Merged | Java 21, Spring Boot 4, Config Client and Actuator. |
+| Caller authentication | Merged | Shared bearer filter, minimum 32 UTF-8 bytes, constant-time comparison and fail-closed startup validation. See ADR-0002. |
 | Authentication unit tests | Added | Focused token tests are present. |
-| Spring context smoke test | Follow-up merged | PR #3 supplies a test-only token fixture. CI/SonarCloud verification must still be checked independently. |
-| Inbound API contract and request guard | Present on master | Fixed GET-only route catalog, path/method/query/body rejection and proxy-owned DTO definitions. No controllers yet. |
-| Portainer configuration and HTTP client | Implemented on this feature branch | HTTPS-only base URL, X-API-Key, fixed GET methods, bounded connect/read timeouts and streaming response-size limit. Tests added; CI not yet run for this branch. |
-| Endpoint discovery and allowlist resolution | Not implemented | Need to map discovered Portainer endpoints to the private configured host-key allowlist. |
+| Spring context smoke test | Merged | PR #3 supplies a test-only token fixture. |
+| Inbound API contract and request guard | Merged | Fixed GET-only route catalog, path/method/query/body rejection and proxy-owned DTO definitions. No controllers yet. |
+| Portainer configuration and HTTP client | Merged | HTTPS-only base URL, X-API-Key, fixed GET methods, bounded connect/read timeouts and streaming response-size limit. |
+| Portainer endpoint discovery and allowlist resolution | Implemented on current feature branch | Fresh endpoint discovery; exact endpoint-name match against configured host keys; missing, duplicate and invalid-ID outcomes are distinct. Endpoint IDs remain internal. |
 | Inventory handlers and DTO mapping | Not implemented | No controllers or mapping from upstream JSON into proxy-owned response DTOs yet. |
 | Portainer TLS trust decision | Accepted | Self-signed Portainer certificate must be trusted via a narrowly scoped runtime-mounted truststore; certificate and hostname/IP verification remain enabled. See ADR-0003. |
-| Runtime port | Corrected in this branch | Application and Actuator share port 8081; Dockerfile and docs updated. Config Server runtime config already uses port 8081. |
+| Runtime port | Merged | Application and Actuator share port 8081; Dockerfile and docs updated. |
 | Architecture ADR-0001 | Proposed | Fixed-operation read-only architecture remains Proposed pending formal approval. |
 | Caller-auth ADR-0002 | Accepted | Shared bearer authentication selected for the MCP-to-proxy hop. |
 | Deployment | None | Nothing deployed; no proxy-to-Portainer connectivity verified. |
@@ -31,23 +31,26 @@
 - PortainerApiClient exposes only fixed GET operations: endpoint listing, Docker info, container listing (all=true) and network listing.
 - The API key is sent as X-API-Key; the caller's bearer token is not forwarded upstream.
 - ResponseSizeLimitInterceptor rejects responses with an oversized declared Content-Length and also caps streamed bodies without relying on Content-Length.
-- Portainer endpoint IDs are accepted only as internal positive integer arguments. Endpoint discovery and mapping from configured host keys are not yet implemented.
-- Automated tests were added for configuration validation, fixed upstream paths/header behavior, invalid endpoint IDs and response-size enforcement. They have not yet been executed in CI or locally in this session.
+- PortainerEndpointResolver performs fresh endpoint discovery and matches the Portainer endpoint Name exactly against the configured proxy host-key allowlist.
+- Resolver outcomes distinguish RESOLVED, NOT_FOUND, AMBIGUOUS and INVALID_ENDPOINT_ID. It never chooses arbitrarily between duplicate names and never includes unconfigured endpoints in its result.
+- Endpoint IDs exist only in the internal resolver result for subsequent adapter calls; they are not inbound parameters or response DTO fields.
+- Automated tests cover exact matching, exclusion of unconfigured names, duplicate names, invalid IDs and malformed discovery responses. They have been added on the current feature branch but have not yet been run in CI or locally in this session.
 
-## Merged authentication implementation
+## Merged authentication and upstream client implementation
 
 - SharedBearerTokenFilter checks the Authorization bearer token before request handling.
 - Missing, malformed or incorrect credentials receive HTTP 401 with a stable UNAUTHORIZED code.
 - The expected secret must be configured and contain at least 32 UTF-8 bytes; startup fails closed otherwise.
 - Token comparison uses MessageDigest.isEqual.
-- Focused unit tests cover accepted, missing, malformed, incorrect and weakly configured tokens.
 - PR #3 merged the test-only fixture to master; the fixture is not a production secret.
-- Do not claim CI is green until the merged workflow result is verified. The earlier SonarCloud authorization failure was a separate scanner/organization authorization issue and did not establish whether the Maven tests passed.
+- PR #4 merged the Portainer HTTPS client foundation, response limits, TLS truststore guidance and shared port 8081 configuration. The operator reports the merged build completed successfully.
+- Do not claim GitHub Actions CI is green until its workflow result is independently verified.
 
 ## Settled design requirements
 
 - The proxy returns only its own allowlisted DTOs; raw Portainer bodies are never forwarded.
 - Portainer endpoint IDs are outbound-only and never caller-supplied.
+- Endpoint resolution is exact-name based against the private configured allowlist; no hardcoded endpoint IDs or environment mappings belong in this public repository.
 - Configuration namespace for Portainer settings is proxy.portainer.*.
 - Application and Actuator share the same listener on port 8081. No separate management listener.
 - No Proxmox integration, MCP SDK/tools, Webtools OAuth resource server, central-user authorization, or environment-specific settings in this repo.
@@ -56,15 +59,14 @@
 
 ## Remaining Release 2 work
 
-1. Verify the merged authentication PR's CI/Maven test result independently of SonarCloud.
-2. Implement Portainer endpoint discovery and server-side environment allowlist resolution.
-3. Implement the fixed inbound GET-only API handlers.
-4. Map upstream responses into proxy-owned DTOs only.
-5. Add sanitized error handling and per-environment failure isolation.
-6. Add TLS integration tests for trust and hostname mismatch, plus tests for allowlist enforcement and DTO filtering.
-7. Integrate the MCP client and its own independent DTOs/tests.
-8. Validate against the installed Portainer CE deployment.
-9. Deploy only after explicit operator approval.
+1. Verify the merged PR workflows and run Maven verification for the current branch.
+2. Implement the fixed inbound GET-only API handlers.
+3. Map upstream responses into proxy-owned DTOs only.
+4. Add sanitized error handling and per-environment failure isolation.
+5. Add TLS integration tests for trust and hostname mismatch, plus tests for allowlist enforcement and DTO filtering.
+6. Integrate the MCP client and its own independent DTOs/tests.
+7. Validate against the installed Portainer CE deployment.
+8. Deploy only after explicit operator approval.
 
 ## Private runtime configuration
 
