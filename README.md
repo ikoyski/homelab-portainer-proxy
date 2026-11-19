@@ -6,7 +6,7 @@ This repository is public; runtime endpoints, credentials, certificates and trus
 
 ## Status
 
-**Skeleton only; initial local Maven build successful.** The operator reports that the initial Maven build completed successfully. No proxy functionality is implemented, and GitHub Actions CI has not yet been independently verified. See [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
+**Initial API-surface implementation is on a review branch.** The fixed inbound API contract, default-deny request filter and rejection tests have been added, but the branch has not yet been CI-verified or merged. No request handlers, Portainer client, caller authentication or deployment are implemented. See [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
 
 ## Technology
 
@@ -26,6 +26,7 @@ Tests do not need the Config Server (`src/test/resources/application.yaml` disab
 
 - [CLAUDE.md](CLAUDE.md) — mandatory engineering and security rules
 - [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md) — canonical handoff
+- [docs/architecture/inbound-api-contract.md](docs/architecture/inbound-api-contract.md) — fixed inbound API and DTO contract
 - [docs/architecture/proxy-design.md](docs/architecture/proxy-design.md) — proposed design
 - [docs/CHANGELOG.md](docs/CHANGELOG.md)
 
