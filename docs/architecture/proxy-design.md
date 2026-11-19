@@ -1,17 +1,17 @@
 # Proxy design (proposed)
 
-Status: proposed baseline. The inbound operation catalog and request-surface filter have an initial implementation on a review branch; controllers, Portainer integration and caller authentication are not implemented. Not yet formally approved (see ADR-0001).
+Status: proposed baseline. The inbound operation catalog and request-surface filter, shared bearer authentication and initial fixed-operation Portainer HTTP client are implemented on the feature branch. Endpoint discovery, host allowlist resolution, controllers, DTO mapping and deployment remain incomplete. Not yet formally approved (see ADR-0001).
 
 ## Goals
 - Expose only fixed read-only Docker inventory operations.
 - Return only proxy-owned, allowlisted DTOs. Never forward raw Portainer bodies.
 - Keep the Portainer credential and Portainer endpoint IDs private to the proxy.
 - Fail closed: unknown method, path, or query parameter is rejected.
-- Keep TLS certificate and hostname verification to Portainer.
+- Keep TLS certificate and hostname/IP verification to Portainer, including when its certificate is self-signed.
 
 ## Topology
 
-    homelab-management-mcp --(private network, authenticated)--> homelab-portainer-proxy --(HTTPS, verified)--> Portainer Server
+    homelab-management-mcp --(private network, authenticated)--> homelab-portainer-proxy --(HTTPS, verified TLS)--> Portainer Server
 
 ## Firm requirements
 
@@ -26,9 +26,21 @@ Portainer `/api/endpoints/{id}/...` paths are **outbound upstream requests only*
 
 Callers identify an environment only by a configured proxy-level `hostKey`; it must resolve against the private allowlist. Endpoint IDs are never accepted from callers or exposed as stable identifiers.
 
+### 3. Verified TLS to the self-signed Portainer certificate
+The Portainer Server uses a self-signed certificate. The proxy must trust that certificate (or its issuing CA) explicitly through a runtime-mounted truststore. Use the standard JVM truststore mechanism so the normal TLS trust-chain and hostname/IP verification remain active.
+
+- Obtain the certificate or CA through a trusted administrative channel; do not fetch and blindly trust it from an unauthenticated connection.
+- Create a PKCS#12 truststore outside Git and mount it read-only into the container.
+- Configure the JVM default truststore using standard `javax.net.ssl.trustStore`, `javax.net.ssl.trustStoreType` and `javax.net.ssl.trustStorePassword` properties supplied at runtime.
+- The certificate SAN must match the exact host in the configured base URL. When the base URL uses an IP address, the certificate must contain that IP as an IP SAN; a matching CN alone is not sufficient.
+- Never use trust-all TLS, disable hostname verification, switch to HTTP, bake the certificate/truststore into the public image, or commit truststore material.
+- Rotate the trust anchor deliberately when the Portainer certificate changes and verify the replacement before removing the previous trust anchor.
+
+See [ADR-0003](decisions/ADR-0003-portainer-self-signed-tls-trust.md).
+
 ## Fixed inbound API
 
-The exact versioned paths, host-key syntax, DTO fields and rejection behavior are specified in [inbound-api-contract.md](inbound-api-contract.md). That contract is the source of truth for the inbound surface. The initial request filter enforces method, path and query-string shape; it does not yet implement authentication, configured-host resolution, handlers or response DTO mapping.
+The exact versioned paths, host-key syntax, DTO fields and rejection behavior are specified in [inbound-api-contract.md](inbound-api-contract.md). That contract is the source of truth for the inbound surface. The request filter enforces method, path and query-string shape; controllers, configured-host resolution and DTO mapping remain to be implemented.
 
 ## Fixed upstream request templates (outbound only; verify against the deployed Portainer API)
 
@@ -52,14 +64,8 @@ The exact versioned paths, host-key syntax, DTO fields and rejection behavior ar
 The proxy contains no Proxmox integration, MCP SDK or tool code, Webtools OAuth resource-server configuration, central-user authorization, or environment-specific settings. Only common Spring infrastructure is retained (web, REST client, Config Client, Actuator/Prometheus).
 
 ## Ports
-- Application port: 8084.
-- Actuator management port: separate, internal only, never published publicly. The value is set through private runtime configuration and is not defined in this repository; confirm the intended configuration before choosing one.
-
-## Open decisions
-1. **Caller authentication** between the MCP and proxy (e.g. shared bearer secret, mTLS). Must not depend on the Webtools OAuth resource-server stack in this repository unless explicitly decided later. A private network alone is not sufficient.
-2. **Portainer credential type** and least-privilege user, confirmed on the installed edition.
-3. **Limits:** response-size cap, timeouts, concurrency.
-4. **License:** awaiting operator confirmation.
+- Application and Actuator share the same HTTP listener on port 8081.
+- There is no separate management listener. Expose the listener only on the private Docker network and use the configured Actuator endpoint exposure list.
 
 ## Configuration shape (illustrative only; real values live in private runtime configuration)
 
@@ -70,12 +76,13 @@ proxy:
     api-key: ${PROXY_PORTAINER_API_KEY}
     connect-timeout-ms: 3000
     read-timeout-ms: 8000
+    max-response-bytes: 2097152
     environments:
-      - key: <proxy-level-key>
-        portainer-name: <name as shown in Portainer>
+      allowlist:
+        - <proxy-level-key>
 ```
 
 Environment names and mappings belong only in private configuration.
 
 ## Test plan
-Request-surface rejection tests are added on the review branch. Remaining tests must cover configured-host allowlist enforcement, DTO-only output with sensitive upstream fields absent, credential non-leakage in responses and logs, per-environment failure isolation, upstream timeout/TLS/5xx mapping, and oversized response handling.
+Tests must cover configured-host allowlist enforcement, DTO-only output with sensitive upstream fields absent, credential non-leakage in responses and logs, per-environment failure isolation, upstream timeout/TLS/5xx mapping, hostname mismatch, and oversized response handling.
