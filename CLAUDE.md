@@ -11,7 +11,8 @@ Provide the server-enforced read-only boundary between `homelab-management-mcp` 
 - Upstream `/api/endpoints/{id}/...` paths exist only as outbound request templates inside the proxy. They are not part of the proxy's inbound API.
 - Keep the Portainer credential private: never return it or log it, and never forward the caller's credentials upstream.
 - Return stable sanitized error codes; never upstream bodies, headers or exception messages.
-- Preserve TLS certificate and hostname/IP verification to Portainer. Never use trust-all TLS or insecure HTTP. Trust a self-signed certificate through a runtime truststore built from the JRE `cacerts`; never bake private CA material into this public image.
+- Preserve TLS certificate and hostname/IP verification to Portainer. The current Portainer certificate is self-signed: trust it only through a narrowly scoped, runtime-mounted truststore. Never use trust-all TLS, disable hostname verification, or use insecure HTTP. Keep certificate and truststore material outside this public repository and image.
+- The truststore must trust the certificate/CA for the exact host used in the configured base URL; the certificate SAN must match that host (including an IP SAN when the base URL uses an IP address).
 - The proxy must not be reachable without authentication and a reviewed network boundary; the MCP must have no network path that bypasses it to Portainer.
 - Do not mount `/var/run/docker.sock`. Do not run as root.
 - Do not add any write-capable operation (POST/PUT/PATCH/DELETE, exec, or any container/image/volume/network/stack mutation).
@@ -31,7 +32,7 @@ This service is independent of `homelab-management-mcp`. Do not add: Proxmox int
 - Java 21 + Spring Boot 4.1.2, Spring Cloud 2025.1.4, same conventions as `homelab-management-mcp`.
 - Spring Cloud Config Client for private runtime configuration (`CONFIG_SERVER_URL`, `CONFIG_USER`, `CONFIG_PASSWORD` supplied by the environment).
 - Proxy-owned configuration namespace: `proxy.portainer.*`; caller secret: `proxy.security.shared-token`. Application name: `homelab-portainer-proxy`.
-- Application port: 8084 (Dockerfile `EXPOSE`). Actuator uses a separate internal management port supplied through private runtime configuration; do not choose or commit a deployment-specific value without checking the intended configuration, and never publish it.
+- Application and Actuator share the same listener on port **8081**. Do not configure a separate `management.server.port`; expose the listener only on the private Docker network and restrict Actuator endpoints to the intended exposure list.
 - Deploy as a Docker container on a private Docker network; no host-published ports.
 - Packages under `com.ikoyski.homelab.portainer.proxy`: `config`, `security`, `allowlist`, `upstream`, `web`.
 - No Kubernetes dependencies. Keep source free of environment-specific IPs and ports.
