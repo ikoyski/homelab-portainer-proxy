@@ -2,6 +2,21 @@
 
 Notable project changes in reverse chronological order.
 
+## 2026-11-19 (endpoint resolution)
+
+### Added
+- Added runtime Portainer endpoint discovery and exact-name resolution against the configured proxy host-key allowlist.
+- Added distinct internal outcomes for resolved, missing, ambiguous and invalid endpoint entries. Duplicate names are never resolved by choosing an arbitrary endpoint.
+- Added resolver tests for exact matching, exclusion of unconfigured endpoints, duplicate names, invalid IDs and malformed discovery responses.
+
+### Security
+- Endpoint IDs remain internal to the proxy resolver; they are not accepted from inbound callers or exposed in response DTOs.
+- Endpoint names not present in the configured allowlist are ignored.
+
+### Verification
+- The resolver and its tests are on the current feature branch. Tests have not yet been run in this session.
+- No deployment or live Portainer connectivity has been performed.
+
 ## 2026-11-19
 
 ### Added
@@ -19,8 +34,8 @@ Notable project changes in reverse chronological order.
 - Added deployment guidance for certificate SAN validation and runtime truststore mounting.
 
 ### Verification
-- The feature-branch tests have not yet been run in this session; do not describe them as passing until CI or a local Maven run confirms.
-- Shared bearer authentication follow-up PR #3 merged. Its Maven/CI result still requires independent verification; the earlier SonarCloud authorization failure must not be described as a Maven test failure or a passing test run.
+- The operator reports that the merged PR #4 build completed successfully.
+- GitHub Actions CI for the merged feature and resolver tests must still be independently checked.
 - No deployment or live Portainer connectivity has been performed.
 
 ## 2026-11-19 (authentication)
