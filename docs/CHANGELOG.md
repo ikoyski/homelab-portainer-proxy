@@ -12,7 +12,7 @@ Notable project changes in reverse chronological order.
 - Engineering rules (`CLAUDE.md`), project status, proposed design and ADR-0001 (Proposed).
 
 ### Status
-- Skeleton only: no proxy functionality; initial local Maven build subsequently reported successful; GitHub Actions CI verification pending; nothing deployed.
+- Initial local Maven build reported successful; GitHub Actions CI verification pending; nothing deployed.
 
 ## 2026-11-18 (verification update)
 
@@ -21,4 +21,14 @@ Notable project changes in reverse chronological order.
 
 ### Pending
 - GitHub Actions CI has not yet been independently verified.
-- Proxy functionality remains unimplemented; nothing has been deployed and this proxy has not contacted Portainer.
+- Proxy functionality has not been connected to Portainer; nothing has been deployed.
+
+## 2026-11-18 (API contract and request guard)
+
+### Added
+- Fixed inbound API contract for `GET /v1/hosts`, `GET /v1/hosts/{hostKey}/containers`, `GET /v1/hosts/{hostKey}/networks`, and `GET /v1/inventory`.
+- Spring request filter and operation catalog that reject unknown `/v1` paths, non-GET methods and all query strings before handler dispatch.
+- Rejection tests for write methods, unknown and Portainer-shaped paths, numeric ID-shaped host keys, and query strings.
+
+### Status
+- Changes are on `feature/api-contract-default-deny` for review. Tests have not yet been run in this environment; GitHub Actions CI is pending. No controllers, Portainer client, caller authentication or deployment have been added.
