@@ -4,18 +4,19 @@
 >
 > **Last updated:** 2026-11-18
 > **Repository:** `ikoyski/homelab-portainer-proxy`
-> **Current focus:** Skeleton refined; awaiting first Maven build and CI verification
+> **Current focus:** Skeleton build verified locally; GitHub Actions CI verification pending
 
 ## Current state
 
 | Area | Status | Notes |
 |---|---|---|
-| Codebase skeleton | Created and refined; **not yet built** | Maven project, Dockerfile, CI workflow, docs, package layout, context-load smoke test. First `mvn verify` and CI run still pending. |
-| Proxy functionality | Not started | `allowlist`, `upstream`, `web`, `security`, `config` are empty placeholders. |
+| Codebase skeleton | Created, refined, and **built locally** | The operator reports that the initial Maven build completed successfully. This is a local result, not an independently verified CI result. |
+| GitHub Actions CI | Pending verification | Do not mark CI as passing until the workflow run is confirmed in GitHub Actions. |
+| Proxy functionality | Not started | `allowlist`, `upstream`, `web`, `security`, and `config` are placeholder packages. |
 | Architecture | Proposed | ADR-0001 stays Proposed until formally approved. |
 | Caller authentication | Open decision | See design doc. |
 | License | Open | Awaiting operator confirmation; no LICENSE file added. |
-| Deployment | None | Nothing deployed; Portainer never contacted. |
+| Deployment | None | Nothing deployed; Portainer has not been contacted by this proxy. |
 
 ## Settled design requirements (proposed architecture)
 
@@ -37,11 +38,12 @@
 
 ## Recommended next work
 
-1. Run `mvn -B clean verify` and CI; fix anything the first build reveals.
+1. Verify the GitHub Actions workflow run and address any CI-only failures.
 2. Define inbound API and DTOs, then write the operation catalog and rejection tests first (default-deny).
 3. Implement endpoint discovery, allowlist resolution and the upstream client.
 4. Implement DTO mapping and sanitized error handling.
-5. Security tests, then integration with homelab-management-mcp; deploy only with explicit operator approval.
+5. Add security and integration tests; deploy only with explicit operator approval.
 
 ## Starting a new engineering conversation
+
 Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and its ADR-0001/0002. Verify code, CI and deployment state before claiming anything.
