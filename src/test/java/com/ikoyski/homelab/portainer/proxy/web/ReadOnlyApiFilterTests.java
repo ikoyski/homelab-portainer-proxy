@@ -47,7 +47,14 @@ class ReadOnlyApiFilterTests {
     }
 
     static Stream<Arguments> writeMethods() {
-        return Stream.of("POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD");
+        return Stream.of(
+                Arguments.of("POST"),
+                Arguments.of("PUT"),
+                Arguments.of("PATCH"),
+                Arguments.of("DELETE"),
+                Arguments.of("OPTIONS"),
+                Arguments.of("HEAD")
+        );
     }
 
     @ParameterizedTest
@@ -109,7 +116,6 @@ class ReadOnlyApiFilterTests {
         assertThat(response.getStatus()).isEqualTo(400);
         assertThat(chain.getRequest()).isNull();
     }
-
 
     @Test
     void rejectsRequestBodiesOnGetRoutes() throws Exception {
