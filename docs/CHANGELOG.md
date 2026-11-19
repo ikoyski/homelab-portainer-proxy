@@ -4,6 +4,20 @@ Notable project changes in reverse chronological order.
 
 ## 2026-11-19
 
+### Changed
+- Set the proxy application listener to port 8081 and aligned the Dockerfile, README and engineering instructions. Actuator shares the same listener; no separate management port is configured.
+- Documented the self-signed Portainer certificate trust model: runtime-mounted PKCS#12 truststore with normal certificate-chain and hostname/IP verification preserved.
+
+### Added
+- Accepted ADR-0003 for trusting the self-signed Portainer certificate without disabling TLS verification.
+- Added deployment guidance for certificate SAN validation and runtime truststore mounting.
+
+### Verification
+- Shared bearer authentication follow-up PR #3 merged. Its Maven/CI result still requires independent verification; the earlier SonarCloud authorization failure must not be described as a Maven test failure or a passing test run.
+- No deployment or live Portainer connectivity has been performed.
+
+## 2026-11-19 (authentication)
+
 ### Added
 - Accepted ADR-0002: shared bearer authentication for the MCP-to-proxy hop.
 - Added a fail-closed inbound bearer-token filter. The configured secret must be at least 32 UTF-8 bytes and is compared using a constant-time comparison.
@@ -12,13 +26,13 @@ Notable project changes in reverse chronological order.
 
 ### Verification
 - Shared bearer authentication was merged to `master` in PR #2.
-- The initial PR workflow failed because the Spring application-context smoke test had no test-only bearer token configured; a follow-up adds that fixture and corrects the post-merge status.
+- The initial PR workflow failed because the Spring application-context smoke test did not supply a test-only bearer token; PR #3 adds that fixture.
 - No deployment or live connectivity has been performed.
 
 ## 2026-11-18
 
 ### Changed
-- Skeleton refinements: proxy-owned DTO-only response filtering made a firm requirement; Portainer endpoint IDs declared internal to the proxy; configuration namespace set to `proxy.portainer.*`; application/management port separation documented; repository-independence rules added; license left open.
+- Skeleton refinements: proxy-owned DTO-only response filtering made a firm requirement; Portainer endpoint IDs declared internal to the proxy; configuration namespace set to `proxy.portainer.*`; repository-independence rules added; license left open.
 
 ### Added
 - Initial codebase skeleton mirroring `homelab-management-mcp` conventions (Spring Boot 4.1.2, Java 21, Config Client, Actuator, Dockerfile, CI workflow).
