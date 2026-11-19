@@ -2,48 +2,60 @@
 
 > **Purpose:** Canonical continuity record for maintainers and AI coding assistants.
 >
-> **Last updated:** 2026-11-18
+> **Last updated:** 2026-11-19
 > **Repository:** `ikoyski/homelab-portainer-proxy`
-> **Current focus:** Skeleton build verified locally; GitHub Actions CI verification pending
+> **Current focus:** Release 2 foundation — shared bearer authentication
 
 ## Current state
 
 | Area | Status | Notes |
 |---|---|---|
-| Codebase skeleton | Created, refined, and **built locally** | The operator reports that the initial Maven build completed successfully. This is a local result, not an independently verified CI result. |
-| GitHub Actions CI | Pending verification | Do not mark CI as passing until the workflow run is confirmed in GitHub Actions. |
-| Proxy functionality | Not started | `allowlist`, `upstream`, `web`, `security`, and `config` are placeholder packages. |
-| Architecture | Proposed | ADR-0001 stays Proposed until formally approved. |
-| Caller authentication | Open decision | See design doc. |
-| License | Open | Awaiting operator confirmation; no LICENSE file added. |
-| Deployment | None | Nothing deployed; Portainer has not been contacted by this proxy. |
+| Codebase skeleton | Created; initial local Maven build reported successful | That earlier result predates the current changes. |
+| Caller authentication | Implemented on feature branch; verification pending | Shared bearer token filter, minimum 32 UTF-8 bytes, constant-time comparison, fail-closed startup validation. See ADR-0002. |
+| Authentication tests | Added; not yet run | Covers valid, missing, malformed, incorrect and weakly configured tokens. |
+| GitHub Actions CI | Pending | Do not claim passing until the branch workflow is confirmed. |
+| Portainer proxy operations | Not implemented | No endpoint discovery, allowlist adapter, Docker inventory endpoints, DTO mapping or upstream Portainer client yet. |
+| Architecture ADR-0001 | Proposed | The fixed-operation read-only architecture remains Proposed pending formal approval. |
+| Caller-auth ADR-0002 | Accepted | Shared bearer authentication selected for the MCP-to-proxy hop. |
+| Deployment | None | Nothing deployed; no proxy-to-Portainer connectivity verified. |
 
-## Settled design requirements (proposed architecture)
+## Implemented on the current feature branch
 
-- The proxy returns only its own allowlisted DTOs; raw Portainer bodies are never forwarded. MCP-side filtering is additional protection only.
-- Portainer `/api/endpoints/{id}/...` routes are outbound upstream requests only. The MCP never supplies endpoint IDs; the proxy discovers them, resolves them against its server-side environment allowlist, and builds upstream requests itself.
-- Configuration namespace is `proxy.portainer.*`; application name is `homelab-portainer-proxy`.
-- Application port 8084; Actuator uses a separate internal management port that is never published. Its value is not defined in this repo.
-- The repository is independent of the MCP: no Proxmox, MCP SDK/tools, Webtools OAuth resource server, central-user authorization, or environment-specific settings.
+- `SharedBearerTokenFilter` checks the Authorization bearer token before request handling.
+- Missing, malformed or incorrect credentials receive HTTP 401 with a stable `UNAUTHORIZED` code.
+- The expected secret must be configured and contain at least 32 UTF-8 bytes; startup fails closed otherwise.
+- Token comparison uses `MessageDigest.isEqual`.
+- Added focused unit tests. They still need an actual Maven/CI run.
+- The secret value is not committed. Both services will obtain the same value from private Config Server configuration under `proxy.security.shared-token` on the proxy side and the corresponding MCP-side setting.
 
-## Open items
+## Settled design requirements
 
-1. Caller authentication mechanism and network placement.
-2. Portainer credential type and least-privilege user on the installed edition.
-3. Exact inbound API paths and DTO fields; response-size, timeout and concurrency limits.
-4. Management port value, to be taken from the intended private runtime configuration.
-5. Java trust for the self-signed Portainer certificate (private runtime truststore).
-6. License choice (operator).
-7. Formal approval of ADR-0001.
+- The proxy returns only its own allowlisted DTOs; raw Portainer bodies are never forwarded.
+- Portainer endpoint IDs are outbound-only and never caller-supplied.
+- Configuration namespace for Portainer settings is `proxy.portainer.*`.
+- Application port 8084; Actuator uses a separate internal management port that is never published.
+- No Proxmox integration, MCP SDK/tools, Webtools OAuth resource server, central-user authorization, or environment-specific settings in this repo.
+- Portainer TLS certificate and hostname verification must remain enabled.
+- The proxy must stay on the private Docker network; bearer authentication does not replace network isolation.
 
-## Recommended next work
+## Remaining Release 2 work
 
-1. Verify the GitHub Actions workflow run and address any CI-only failures.
-2. Define inbound API and DTOs, then write the operation catalog and rejection tests first (default-deny).
-3. Implement endpoint discovery, allowlist resolution and the upstream client.
-4. Implement DTO mapping and sanitized error handling.
-5. Add security and integration tests; deploy only with explicit operator approval.
+1. Run Maven tests and verify CI for the authentication foundation.
+2. Define and implement the fixed inbound GET-only API and strict request rejection behavior.
+3. Implement Portainer endpoint discovery and server-side environment allowlist resolution.
+4. Implement the Portainer upstream client with verified TLS, bounded timeouts and response limits.
+5. Map upstream responses into proxy-owned DTOs only.
+6. Add sanitized error handling and per-environment failure isolation.
+7. Integrate the MCP client and its own independent DTOs/tests.
+8. Validate against the installed Portainer CE 2.45.4 deployment.
+9. Deploy only after explicit operator approval.
+
+## Private runtime configuration
+
+- Keep the shared bearer secret only in the private Config Server configuration for both services; never commit its value.
+- Keep the Portainer API credential, base URL, environment mappings and truststore material only in the proxy's private configuration/runtime.
+- Do not put actual private addresses, environment names or secrets in this public repository.
 
 ## Starting a new engineering conversation
 
-Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and its ADR-0001/0002. Verify code, CI and deployment state before claiming anything.
+Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and ADRs. Verify code, CI and deployment state before claiming anything.
