@@ -29,8 +29,8 @@ class ReadOnlyApiFilterTests {
         return Stream.of(
                 Arguments.of("/v1/hosts"),
                 Arguments.of("/v1/inventory"),
-                Arguments.of("/v1/hosts/util-pve/containers"),
-                Arguments.of("/v1/hosts/media-pve/networks")
+                Arguments.of("/v1/hosts/host-a/containers"),
+                Arguments.of("/v1/hosts/host-b/networks")
         );
     }
 
@@ -71,10 +71,10 @@ class ReadOnlyApiFilterTests {
     static Stream<Arguments> unknownPaths() {
         return Stream.of(
                 Arguments.of("/v1/unknown"),
-                Arguments.of("/v1/hosts/util-pve/containers/123/json"),
+                Arguments.of("/v1/hosts/host-a/containers/123/json"),
                 Arguments.of("/v1/endpoints/123/docker/containers"),
                 Arguments.of("/v1/hosts/123/containers"),
-                Arguments.of("/v1/hosts/util-pve/containers/"),
+                Arguments.of("/v1/hosts/host-a/containers/"),
                 Arguments.of("/v1/hosts/util_pve/containers"),
                 Arguments.of("/v1/hosts/Util-Pve/networks")
         );
@@ -95,7 +95,7 @@ class ReadOnlyApiFilterTests {
         return Stream.of(
                 Arguments.of("all=true"),
                 Arguments.of("endpointId=123"),
-                Arguments.of("host=util-pve"),
+                Arguments.of("host=host-a"),
                 Arguments.of("all=true&all=false"),
                 Arguments.of("")
         );
