@@ -5,7 +5,16 @@ spring:
   application:
     name: homelab-portainer-proxy
 
-# Test fixture only. Never reuse this value outside automated tests.
+# Test fixtures only. Never reuse these values outside automated tests.
 proxy:
   security:
     shared-token: "test-only-token-value-32-bytes-long"
+  portainer:
+    base-url: "https://portainer.test/"
+    api-key: "test-portainer-api-key"
+    connect-timeout-ms: 3000
+    read-timeout-ms: 8000
+    max-response-bytes: 2097152
+    environments:
+      allowlist:
+        - test-host
