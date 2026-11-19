@@ -4,19 +4,27 @@
 >
 > **Last updated:** 2026-11-18
 > **Repository:** `ikoyski/homelab-portainer-proxy`
-> **Current focus:** Skeleton build verified locally; GitHub Actions CI verification pending
+> **Current focus:** Review API contract and default-deny request-surface guard; run CI
 
 ## Current state
 
 | Area | Status | Notes |
 |---|---|---|
-| Codebase skeleton | Created, refined, and **built locally** | The operator reports that the initial Maven build completed successfully. This is a local result, not an independently verified CI result. |
-| GitHub Actions CI | Pending verification | Do not mark CI as passing until the workflow run is confirmed in GitHub Actions. |
-| Proxy functionality | Not started | `allowlist`, `upstream`, `web`, `security`, and `config` are placeholder packages. |
-| Architecture | Proposed | ADR-0001 stays Proposed until formally approved. |
-| Caller authentication | Open decision | See design doc. |
+| Initial skeleton | Built locally | The operator reported a successful initial Maven build. |
+| API contract | Defined on review branch | See `docs/architecture/inbound-api-contract.md`; four fixed GET operations and proxy-owned DTO fields. |
+| Request-surface guard | Implemented on review branch | `InboundOperationCatalog` and `ReadOnlyApiFilter` reject unknown paths, non-GET methods and all query strings. |
+| Rejection tests | Added on review branch; not yet run | Covers approved route shapes, write methods, unknown paths, numeric endpoint-ID-shaped host keys, caller-supplied Portainer paths and query strings. |
+| GitHub Actions CI | Pending | Verify the review branch workflow before merging. |
+| Request handlers / DTO Java records | Not implemented | The API contract is documented; no response handlers or response DTO classes exist yet. |
+| Portainer integration | Not started | No Portainer client, credentials, endpoint discovery or upstream requests. |
+| Caller authentication | Open decision | Must be decided and implemented before exposing the service. |
+| Architecture | Proposed | ADR-0001 remains Proposed until formally approved. |
 | License | Open | Awaiting operator confirmation; no LICENSE file added. |
-| Deployment | None | Nothing deployed; Portainer has not been contacted by this proxy. |
+| Deployment | None | Nothing deployed; this proxy has not contacted Portainer. |
+
+## Current implementation boundary
+
+The request filter is an early guard for the `/v1` URL space. It is not caller authentication, configured host allowlist resolution, a complete authorization boundary, or proof of end-to-end read-only behavior. No API controllers exist yet. Do not expose or deploy this service as usable until authentication, host allowlist resolution, response DTO mapping, upstream restrictions and integration tests are implemented.
 
 ## Settled design requirements (proposed architecture)
 
@@ -29,21 +37,22 @@
 ## Open items
 
 1. Caller authentication mechanism and network placement.
-2. Portainer credential type and least-privilege user on the installed edition.
-3. Exact inbound API paths and DTO fields; response-size, timeout and concurrency limits.
-4. Management port value, to be taken from the intended private runtime configuration.
-5. Java trust for the self-signed Portainer certificate (private runtime truststore).
-6. License choice (operator).
-7. Formal approval of ADR-0001.
+2. Exact private host-key allowlist and mapping to discovered Portainer endpoint IDs.
+3. Portainer credential type and least-privilege user on the installed edition.
+4. DTO Java records, controller behavior, response-size cap, timeouts and concurrency limits.
+5. Management port value, to be taken from the intended private runtime configuration.
+6. Java trust for the self-signed Portainer certificate (private runtime truststore).
+7. License choice (operator).
+8. Formal approval of ADR-0001.
 
 ## Recommended next work
 
-1. Verify the GitHub Actions workflow run and address any CI-only failures.
-2. Define inbound API and DTOs, then write the operation catalog and rejection tests first (default-deny).
-3. Implement endpoint discovery, allowlist resolution and the upstream client.
-4. Implement DTO mapping and sanitized error handling.
-5. Add security and integration tests; deploy only with explicit operator approval.
+1. Run Maven tests and verify GitHub Actions on the review branch; fix any failures before merge.
+2. Decide caller authentication and implement exact configured-host allowlist resolution.
+3. Implement controllers and proxy-owned DTO mapping, preserving per-host failure isolation.
+4. Implement Portainer endpoint discovery and the fixed upstream client with verified TLS, bounded timeouts and response-size limits.
+5. Add security, sanitization, outage/recovery and integration tests; deploy only with explicit operator approval.
 
 ## Starting a new engineering conversation
 
-Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and its ADR-0001/0002. Verify code, CI and deployment state before claiming anything.
+Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/inbound-api-contract.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and its ADR-0001/0002. Verify code, CI and deployment state before claiming anything.
