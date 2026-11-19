@@ -4,29 +4,31 @@
 >
 > **Last updated:** 2026-11-19
 > **Repository:** `ikoyski/homelab-portainer-proxy`
-> **Current focus:** Release 2 foundation — shared bearer authentication
+> **Current focus:** Release 2 foundation — verify merged shared bearer authentication
 
 ## Current state
 
 | Area | Status | Notes |
 |---|---|---|
 | Codebase skeleton | Created; initial local Maven build reported successful | That earlier result predates the current changes. |
-| Caller authentication | Implemented on feature branch; verification pending | Shared bearer token filter, minimum 32 UTF-8 bytes, constant-time comparison, fail-closed startup validation. See ADR-0002. |
-| Authentication tests | Added; not yet run | Covers valid, missing, malformed, incorrect and weakly configured tokens. |
-| GitHub Actions CI | Pending | Do not claim passing until the branch workflow is confirmed. |
-| Portainer proxy operations | Not implemented | No endpoint discovery, allowlist adapter, Docker inventory endpoints, DTO mapping or upstream Portainer client yet. |
-| Architecture ADR-0001 | Proposed | The fixed-operation read-only architecture remains Proposed pending formal approval. |
+| Caller authentication | Merged to `master`; CI verification fix in progress | Shared bearer filter, minimum 32 UTF-8 bytes, constant-time comparison and fail-closed startup validation. See ADR-0002. |
+| Authentication unit tests | Added | Focused token tests are present. |
+| Spring context smoke test | Fix in progress | Initial PR workflow failed because the test context did not supply the required test-only token. |
+| GitHub Actions CI | Initial PR run failed; rerun pending | Failure cause identified and test fixture corrected on a follow-up branch. |
+| Portainer proxy operations | Not implemented | No endpoint discovery, allowlist adapter, Docker inventory handlers, DTO mapping or upstream Portainer client yet. |
+| Architecture ADR-0001 | Proposed | Fixed-operation read-only architecture remains Proposed pending formal approval. |
 | Caller-auth ADR-0002 | Accepted | Shared bearer authentication selected for the MCP-to-proxy hop. |
 | Deployment | None | Nothing deployed; no proxy-to-Portainer connectivity verified. |
 
-## Implemented on the current feature branch
+## Merged authentication implementation
 
 - `SharedBearerTokenFilter` checks the Authorization bearer token before request handling.
 - Missing, malformed or incorrect credentials receive HTTP 401 with a stable `UNAUTHORIZED` code.
 - The expected secret must be configured and contain at least 32 UTF-8 bytes; startup fails closed otherwise.
 - Token comparison uses `MessageDigest.isEqual`.
-- Added focused unit tests. They still need an actual Maven/CI run.
-- The secret value is not committed. Both services will obtain the same value from private Config Server configuration under `proxy.security.shared-token` on the proxy side and the corresponding MCP-side setting.
+- Focused unit tests cover accepted, missing, malformed, incorrect and weakly configured tokens.
+- The initial CI run failed in `HomelabPortainerProxyApplicationTest.contextLoads`: the Spring test context did not supply `proxy.security.shared-token`. A test-only value is being added to `src/test/resources/application.yaml`; it is not a production secret.
+- The real secret remains private Config Server configuration for both services. The proxy-side key is `proxy.security.shared-token`; the MCP-side key must be defined consistently in the MCP application.
 
 ## Settled design requirements
 
@@ -40,8 +42,8 @@
 
 ## Remaining Release 2 work
 
-1. Run Maven tests and verify CI for the authentication foundation.
-2. Define and implement the fixed inbound GET-only API and strict request rejection behavior.
+1. Pass Maven tests and GitHub Actions CI for the authentication foundation.
+2. Implement the fixed inbound GET-only API and strict request rejection behavior (the contract and initial request-surface guard are already present).
 3. Implement Portainer endpoint discovery and server-side environment allowlist resolution.
 4. Implement the Portainer upstream client with verified TLS, bounded timeouts and response limits.
 5. Map upstream responses into proxy-owned DTOs only.
@@ -58,4 +60,4 @@
 
 ## Starting a new engineering conversation
 
-Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and ADRs. Verify code, CI and deployment state before claiming anything.
+Read this file, `CLAUDE.md`, `README.md`, `docs/architecture/inbound-api-contract.md`, `docs/architecture/proxy-design.md`, then the ADRs. Also read the MCP repo's Release 2 document and ADRs. Verify code, CI and deployment state before claiming anything.
