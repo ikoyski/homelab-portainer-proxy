@@ -32,4 +32,4 @@ Notable project changes in reverse chronological order.
 - Explicit Java response records for host, container, network, published-port and aggregate inventory data, with serialization tests asserting the exact allowlisted field sets.
 
 ### Status
-- Changes are on `feature/api-contract-default-deny` for review. The first GitHub Actions run caught a JUnit test-source compilation error. The next run exposed the missing Spring Boot 4 Jackson starter and Jackson 3 package imports. Both fixes are pushed; a passing rerun is still pending. No controllers, Portainer client, caller authentication or deployment have been added.
+- Changes are on `feature/api-contract-default-deny` for review. GitHub Actions runs caught a JUnit argument-source error, a missing Spring Boot 4 Jackson starter, and use of a Jackson 2 tree API removed in Jackson 3. The fixes are pushed; a passing rerun is still pending. No controllers, Portainer client, caller authentication or deployment have been added.
