@@ -1,6 +1,6 @@
 # Proxy design (proposed)
 
-Status: proposed baseline; nothing here is implemented. Not yet formally approved (see ADR-0001).
+Status: proposed baseline. The inbound operation catalog and request-surface filter have an initial implementation on a review branch; controllers, Portainer integration and caller authentication are not implemented. Not yet formally approved (see ADR-0001).
 
 ## Goals
 - Expose only fixed read-only Docker inventory operations.
@@ -24,19 +24,11 @@ Portainer `/api/endpoints/{id}/...` paths are **outbound upstream requests only*
 2. resolves them against its server-side environment allowlist (private configuration),
 3. constructs every upstream request itself from fixed templates.
 
-Callers identify an environment, if at all, only by a configured proxy-level key validated against the allowlist. Unknown keys are rejected. Endpoint IDs are not exposed as stable identifiers.
+Callers identify an environment only by a configured proxy-level `hostKey`; it must resolve against the private allowlist. Endpoint IDs are never accepted from callers or exposed as stable identifiers.
 
-## Inbound API (proposed shape, to be finalized before implementation)
-Proxy-owned, versioned, GET-only operations returning proxy DTOs, for example:
+## Fixed inbound API
 
-| Operation | Purpose |
-|---|---|
-| list environments | configured environments and availability |
-| get environment info | allowlisted Docker engine info for one environment |
-| list containers | allowlisted container fields for one environment |
-| list networks | allowlisted network fields for one environment |
-
-Exact paths, DTO fields and the aggregate operation are decided in the implementation design. No path variable or parameter may carry an upstream path, URL or endpoint ID.
+The exact versioned paths, host-key syntax, DTO fields and rejection behavior are specified in [inbound-api-contract.md](inbound-api-contract.md). That contract is the source of truth for the inbound surface. The initial request filter enforces method, path and query-string shape; it does not yet implement authentication, configured-host resolution, handlers or response DTO mapping.
 
 ## Fixed upstream request templates (outbound only; verify against the deployed Portainer API)
 
@@ -51,7 +43,9 @@ Exact paths, DTO fields and the aggregate operation are decided in the implement
 `{discoveredId}` comes only from proxy-side discovery plus allowlist match. `{containerId}` is validated by a strict pattern and originates from a previous upstream listing, not from caller input.
 
 ## Rejection behavior
-- Non-GET methods: 405. Unknown path or any unexpected query parameter: rejected, nothing forwarded.
+- Non-GET methods on known paths: 405 with `Allow: GET`.
+- Unknown paths under `/v1`: 404.
+- Any query string: 400.
 - Errors use stable sanitized codes; no upstream bodies, headers or exception messages.
 
 ## Repository independence
@@ -65,8 +59,7 @@ The proxy contains no Proxmox integration, MCP SDK or tool code, Webtools OAuth 
 1. **Caller authentication** between the MCP and proxy (e.g. shared bearer secret, mTLS). Must not depend on the Webtools OAuth resource-server stack in this repository unless explicitly decided later. A private network alone is not sufficient.
 2. **Portainer credential type** and least-privilege user, confirmed on the installed edition.
 3. **Limits:** response-size cap, timeouts, concurrency.
-4. **Exact inbound API paths and DTO fields.**
-5. **License:** awaiting operator confirmation.
+4. **License:** awaiting operator confirmation.
 
 ## Configuration shape (illustrative only; real values live in private runtime configuration)
 
@@ -85,4 +78,4 @@ proxy:
 Environment names and mappings belong only in private configuration.
 
 ## Test plan
-Rejected methods, paths and query parameters; endpoint IDs impossible to supply; DTO-only output with sensitive upstream fields absent; credential non-leakage in responses and logs; per-environment failure isolation; upstream timeout/TLS/5xx mapping; oversized response handling.
+Request-surface rejection tests are added on the review branch. Remaining tests must cover configured-host allowlist enforcement, DTO-only output with sensitive upstream fields absent, credential non-leakage in responses and logs, per-environment failure isolation, upstream timeout/TLS/5xx mapping, and oversized response handling.
