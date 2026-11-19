@@ -26,6 +26,7 @@ Tests do not need the Config Server (`src/test/resources/application.yaml` disab
 
 - [CLAUDE.md](CLAUDE.md) — mandatory engineering and security rules
 - [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md) — canonical handoff
+- [docs/architecture/inbound-api-contract.md](docs/architecture/inbound-api-contract.md) — fixed inbound API and DTO contract
 - [docs/architecture/proxy-design.md](docs/architecture/proxy-design.md) — proposed design
 - [docs/CHANGELOG.md](docs/CHANGELOG.md)
 
