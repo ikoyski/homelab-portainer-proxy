@@ -1,6 +1,5 @@
 package com.ikoyski.homelab.portainer.proxy.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * <p>This is an operation-surface guard, not caller authentication or host allowlist
  * resolution. Those controls must be implemented separately before the proxy is usable.</p>
  */
+@Component
 public final class ReadOnlyApiFilter extends OncePerRequestFilter {
 
     private static final String API_PREFIX = "/v1";
@@ -41,7 +42,7 @@ public final class ReadOnlyApiFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (catalog.find(request.getMethod(), path).isEmpty()) {
+        if (catalog.find(path).isEmpty()) {
             writeError(response, HttpServletResponse.SC_NOT_FOUND, "not_found");
             return;
         }
