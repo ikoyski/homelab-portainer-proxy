@@ -1,6 +1,6 @@
 # Proxy design (proposed)
 
-Status: proposed baseline. The inbound operation catalog and request-surface filter are implemented; shared bearer authentication is merged. Controllers, Portainer integration and deployment are not complete. Not yet formally approved (see ADR-0001).
+Status: proposed baseline. The inbound operation catalog and request-surface filter, shared bearer authentication and initial fixed-operation Portainer HTTP client are implemented on the feature branch. Endpoint discovery, host allowlist resolution, controllers, DTO mapping and deployment remain incomplete. Not yet formally approved (see ADR-0001).
 
 ## Goals
 - Expose only fixed read-only Docker inventory operations.
