@@ -39,6 +39,7 @@ The license for this repository is undecided and awaiting operator confirmation.
 
 ## Documentation and continuity workflow
 - `docs/PROJECT-STATUS.md` is the canonical handoff; update it when milestones, decisions or deployment state change.
+- `docs/architecture/inbound-api-contract.md` is the source of truth for inbound routes, host-key syntax, DTO fields and rejection behavior; update code and tests to match it.
 - Record durable decisions as numbered ADRs in `docs/architecture/decisions/`; supersede rather than silently reverse. ADR-0001 stays *Proposed* until the operator formally approves the architecture.
 - Add notable milestones to `docs/CHANGELOG.md`; keep README concise and synchronized.
 - Distinguish proposed, implemented, merged, CI-verified and deployed work.
