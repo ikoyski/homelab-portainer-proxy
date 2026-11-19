@@ -13,9 +13,9 @@
 | Initial skeleton | Built locally | The operator reported a successful initial Maven build. |
 | API contract | Defined on review branch | See `docs/architecture/inbound-api-contract.md`; four fixed GET operations and proxy-owned DTO fields. |
 | Request-surface guard | Implemented on review branch | `InboundOperationCatalog` and `ReadOnlyApiFilter` reject unknown paths, non-GET methods and all query strings. |
-| Rejection tests | Added on review branch; not yet run | Covers approved route shapes, write methods, unknown paths, numeric endpoint-ID-shaped host keys, caller-supplied Portainer paths and query strings. |
+| Rejection / DTO tests | Added on review branch; CI initially exposed a test-source compile error, now corrected; latest run pending | Covers route/method/path/query/body rejection and exact serialized DTO field sets. |
 | GitHub Actions CI | Pending | Verify the review branch workflow before merging. |
-| Request handlers / DTO Java records | Not implemented | The API contract is documented; no response handlers or response DTO classes exist yet. |
+| Response DTO Java records | Implemented on review branch | Explicit Host, Container, Network, PublishedPort and Inventory records; serialization tests assert only allowlisted fields. |
 | Portainer integration | Not started | No Portainer client, credentials, endpoint discovery or upstream requests. |
 | Caller authentication | Open decision | Must be decided and implemented before exposing the service. |
 | Architecture | Proposed | ADR-0001 remains Proposed until formally approved. |
@@ -49,7 +49,7 @@ The request filter is an early guard for the `/v1` URL space. It is not caller a
 
 1. Run Maven tests and verify GitHub Actions on the review branch; fix any failures before merge.
 2. Decide caller authentication and implement exact configured-host allowlist resolution.
-3. Implement controllers and proxy-owned DTO mapping, preserving per-host failure isolation.
+3. Implement controllers and DTO mapping from typed upstream models, preserving per-host failure isolation.
 4. Implement Portainer endpoint discovery and the fixed upstream client with verified TLS, bounded timeouts and response-size limits.
 5. Add security, sanitization, outage/recovery and integration tests; deploy only with explicit operator approval.
 
