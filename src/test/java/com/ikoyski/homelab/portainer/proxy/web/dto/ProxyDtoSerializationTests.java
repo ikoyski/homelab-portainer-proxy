@@ -65,8 +65,6 @@ class ProxyDtoSerializationTests {
     }
 
     private Set<String> fieldNames(JsonNode node) {
-        Set<String> names = new HashSet<>();
-        node.fieldNames().forEachRemaining(names::add);
-        return names;
+        return new HashSet<>(node.propertyNames());
     }
 }
