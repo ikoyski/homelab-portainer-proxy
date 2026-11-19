@@ -76,7 +76,10 @@ class ReadOnlyApiFilterTests {
                 Arguments.of("/v1/hosts/123/containers"),
                 Arguments.of("/v1/hosts/host-a/containers/"),
                 Arguments.of("/v1/hosts/util_pve/containers"),
-                Arguments.of("/v1/hosts/Util-Pve/networks")
+                Arguments.of("/v1/hosts/Util-Pve/networks"),
+                Arguments.of("/v1/hosts/../endpoints/123/docker/containers"),
+                Arguments.of("/v1/hosts/%2e%2e/endpoints/123/docker/containers"),
+                Arguments.of("/v1/hosts/http%3A%2F%2Fexample/containers")
         );
     }
 
