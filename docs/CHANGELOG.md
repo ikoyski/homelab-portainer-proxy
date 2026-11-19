@@ -29,6 +29,7 @@ Notable project changes in reverse chronological order.
 - Fixed inbound API contract for `GET /v1/hosts`, `GET /v1/hosts/{hostKey}/containers`, `GET /v1/hosts/{hostKey}/networks`, and `GET /v1/inventory`.
 - Spring request filter and operation catalog that reject unknown `/v1` paths, non-GET methods, all query strings and request bodies before handler dispatch.
 - Rejection tests for write methods, unknown and Portainer-shaped paths, numeric ID-shaped host keys, query strings and request bodies.
+- Explicit Java response records for host, container, network, published-port and aggregate inventory data, with serialization tests asserting the exact allowlisted field sets.
 
 ### Status
-- Changes are on `feature/api-contract-default-deny` for review. Tests have not yet been run in this environment; GitHub Actions CI is pending. No controllers, Portainer client, caller authentication or deployment have been added.
+- Changes are on `feature/api-contract-default-deny` for review. The first GitHub Actions run caught a JUnit test-source compilation error; that test was corrected and the expanded DTO tests were added afterward. A passing rerun is still pending. No controllers, Portainer client, caller authentication or deployment have been added.
