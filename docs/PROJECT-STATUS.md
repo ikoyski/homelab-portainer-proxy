@@ -13,7 +13,7 @@
 | Initial skeleton | Built locally | The operator reported a successful initial Maven build. |
 | API contract | Defined on review branch | See `docs/architecture/inbound-api-contract.md`; four fixed GET operations and proxy-owned DTO fields. |
 | Request-surface guard | Implemented on review branch | `InboundOperationCatalog` and `ReadOnlyApiFilter` reject unknown paths, non-GET methods, all query strings and request bodies. |
-| Rejection / DTO tests | Added on review branch; CI initially exposed a test-source compile error, now corrected; latest run pending | Covers route/method/path/query/body rejection and exact serialized DTO field sets. |
+| Rejection / DTO tests | Added on review branch; CI runs exposed two test/build issues (JUnit argument source and missing Spring Boot 4 Jackson starter); both fixes are pushed, latest run pending | Covers route/method/path/query/body rejection and exact serialized DTO field sets. |
 | GitHub Actions CI | Pending | Verify the review branch workflow before merging. |
 | Response DTO Java records | Implemented on review branch | Explicit Host, Container, Network, PublishedPort and Inventory records; serialization tests assert only allowlisted fields. |
 | Portainer integration | Not started | No Portainer client, credentials, endpoint discovery or upstream requests. |
