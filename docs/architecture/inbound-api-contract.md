@@ -5,12 +5,12 @@ Status: proposed contract for the first implementation increment. It does not ap
 ## Contract principles
 
 - Base path: `/v1`.
-- GET only. No request body, query parameters, arbitrary headers, caller-supplied upstream URL, Portainer endpoint ID, Docker API path, or command.
+- GET only, with no request body or query string. The proxy never forwards caller-supplied headers upstream. Callers cannot supply an upstream URL, Portainer endpoint ID, Docker API path, or command.
 - The only caller-supplied environment identifier is a proxy-level `hostKey`. It must match the syntax below and then resolve against the private server-side allowlist. Syntax validation alone does not authorize a host.
 - Portainer endpoint IDs are discovered and resolved inside the proxy. They never appear in inbound routes or response DTOs.
 - Responses are proxy-owned DTOs populated field by field. Never return raw Portainer/Docker JSON, maps of arbitrary properties, or upstream error bodies.
-- Unknown paths return 404; non-GET methods on a known path return 405 with `Allow: GET`; any query string returns 400. All rejections happen before an upstream request can be made.
-- Stable error bodies contain only a code: `{"error":"not_found"}`, `{"error":"method_not_allowed"}`, or `{"error":"query_parameters_not_allowed"}`.
+- Unknown paths return 404; non-GET methods on a known path return 405 with `Allow: GET`; any query string or request body returns 400. All rejections happen before an upstream request can be made.
+- Stable error bodies contain only a code: `{"error":"not_found"}`, `{"error":"method_not_allowed"}`, `{"error":"query_parameters_not_allowed"}`, or `{"error":"request_body_not_allowed"}`.
 
 ## Fixed inbound operation catalog
 
@@ -99,6 +99,7 @@ No DTO may expose environment variables, labels, commands, entrypoints, mounts, 
 | Unknown or extra path segment | 404. |
 | Numeric ID in place of hostKey | 404. |
 | Any query string, including duplicate parameters | 400. |
+| Any request body, including chunked transfer | 400. |
 | Portainer endpoint path supplied by caller | 404. |
 
 Authentication is intentionally not specified here. The API must not be exposed until caller authentication and the private network boundary are designed and implemented.
