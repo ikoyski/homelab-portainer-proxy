@@ -45,7 +45,7 @@ The exact versioned paths, host-key syntax, DTO fields and rejection behavior ar
 ## Rejection behavior
 - Non-GET methods on known paths: 405 with `Allow: GET`.
 - Unknown paths under `/v1`: 404.
-- Any query string: 400.
+- Any query string or request body: 400.
 - Errors use stable sanitized codes; no upstream bodies, headers or exception messages.
 
 ## Repository independence
