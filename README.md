@@ -6,7 +6,7 @@ This repository is public; runtime endpoints, credentials, certificates and trus
 
 ## Status
 
-**Release 2 implementation in progress.** Shared bearer authentication, the default-deny inbound request guard, Portainer HTTPS client foundation, fixed upstream GET operations, timeouts and response-size limiting are implemented on the current feature branch. Endpoint discovery, allowlist resolution, inbound handlers, DTO mapping and MCP integration remain outstanding. See docs/PROJECT-STATUS.md.
+**Release 2 implementation in progress.** Shared bearer authentication, the default-deny inbound request guard, Portainer HTTPS client foundation, fixed upstream GET operations, timeouts and response-size limiting are merged. Dynamic endpoint discovery and exact-name resolution against the private configured host-key allowlist are implemented on the current feature branch. Inbound handlers, DTO mapping and MCP integration remain outstanding. See docs/PROJECT-STATUS.md.
 
 ## Technology
 
@@ -43,7 +43,6 @@ Tests do not need the Config Server (src/test/resources/application.yaml disable
 - docs/architecture/inbound-api-contract.md — fixed inbound API and DTO contract
 - docs/architecture/proxy-design.md — proposed design
 - docs/architecture/decisions/ — architecture decision records
-- docs/CHANGELOG.md
 
 ## License
 
