@@ -2,6 +2,19 @@
 
 Notable project changes in reverse chronological order.
 
+## 2026-11-19
+
+### Added
+- Accepted ADR-0002: shared bearer authentication for the MCP-to-proxy hop.
+- Added a fail-closed inbound bearer-token filter. The configured secret must be at least 32 UTF-8 bytes and is compared using a constant-time comparison.
+- Added focused unit tests for accepted, missing, malformed, incorrect and weakly configured tokens.
+- Kept the token value exclusively in private Config Server configuration; no secret is committed.
+
+### Verification
+- GitHub source changes are committed on the feature branch.
+- Maven tests and CI have not yet been run/verified for this change.
+- No deployment or live connectivity has been performed.
+
 ## 2026-11-18
 
 ### Changed
