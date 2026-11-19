@@ -110,6 +110,43 @@ class ReadOnlyApiFilterTests {
         assertThat(chain.getRequest()).isNull();
     }
 
+
+    @Test
+    void rejectsRequestBodiesOnGetRoutes() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.setRequestURI("/v1/hosts");
+        request.setServletPath("/v1/hosts");
+        request.setContent("unexpected".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        filter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(response.getContentAsString())
+                .isEqualTo("{\"error\":\"request_body_not_allowed\"}");
+        assertThat(chain.getRequest()).isNull();
+    }
+
+    @Test
+    void rejectsChunkedRequestBodiesOnGetRoutes() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.setRequestURI("/v1/hosts");
+        request.setServletPath("/v1/hosts");
+        request.addHeader("Transfer-Encoding", "chunked");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        filter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(response.getContentAsString())
+                .isEqualTo("{\"error\":\"request_body_not_allowed\"}");
+        assertThat(chain.getRequest()).isNull();
+    }
+
     @Test
     void doesNotInterceptPathsOutsideVersionedApi() throws Exception {
         FilterResult result = invoke("POST", "/actuator/health", null);
