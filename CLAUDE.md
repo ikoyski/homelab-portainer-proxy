@@ -1,7 +1,7 @@
 # Homelab Portainer Proxy — Project Instructions
 
 ## Mission
-Provide the server-enforced read-only boundary between `homelab-management-mcp` and the Portainer Server (see ADR-0002 in the MCP repo). The repository is public, so assume every committed byte is public.
+Provide the server-enforced read-only boundary between `homelab-management-mcp` and the Portainer Server. The repository is public, so assume every committed byte is public.
 
 ## Non-negotiable security rules
 - Never commit credentials, API tokens, SSH keys, truststores, certificates, real URLs, private IPs, real environment names/mappings or sensitive infrastructure configuration.
@@ -37,6 +37,7 @@ This service is independent of `homelab-management-mcp`. Do not add: Proxmox int
 - No Kubernetes dependencies. Keep source free of environment-specific IPs and ports.
 
 ## Implementation expectations
+- Treat `docs/architecture/inbound-api-contract.md` as the source of truth for inbound routes, host-key syntax, DTO fields and request rejection behavior. Keep implementation and tests aligned with it.
 - Validate all inputs; use bounded connect/read timeouts and response-size limits.
 - Add tests for: rejected methods, paths and query parameters; caller-supplied endpoint IDs being impossible; DTO-only responses (sensitive upstream fields never appear); credential non-leakage; upstream failure mapping; TLS failure behavior; one unavailable environment not suppressing others.
 - Do not claim tests passed unless they were actually run; do not claim deployment or connectivity unless verified from the homelab.

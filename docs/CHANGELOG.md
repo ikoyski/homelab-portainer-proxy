@@ -11,8 +11,8 @@ Notable project changes in reverse chronological order.
 - Kept the token value exclusively in private Config Server configuration; no secret is committed.
 
 ### Verification
-- GitHub source changes are committed on the feature branch.
-- Maven tests and CI have not yet been run/verified for this change.
+- Shared bearer authentication was merged to `master` in PR #2.
+- The initial PR workflow failed because the Spring application-context smoke test had no test-only bearer token configured; a follow-up adds that fixture and corrects the post-merge status.
 - No deployment or live connectivity has been performed.
 
 ## 2026-11-18
@@ -45,4 +45,4 @@ Notable project changes in reverse chronological order.
 - Explicit Java response records for host, container, network, published-port and aggregate inventory data, with serialization tests asserting the exact allowlisted field sets.
 
 ### Status
-- Changes are on `feature/api-contract-default-deny` for review. GitHub Actions runs caught a JUnit argument-source error, a missing Spring Boot 4 Jackson starter, and use of a Jackson 2 tree API removed in Jackson 3. The fixes are pushed; a passing rerun is still pending. No controllers, Portainer client, caller authentication or deployment have been added.
+- The inbound contract and default-deny request guard are present on `master`. The initial CI fixes for this slice were incorporated before PR #2. No controllers, Portainer client or deployment have been added.

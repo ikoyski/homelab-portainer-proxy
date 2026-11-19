@@ -6,7 +6,7 @@ This repository is public; runtime endpoints, credentials, certificates and trus
 
 ## Status
 
-**Release 2 foundation in progress.** Shared bearer authentication has been implemented on a feature branch, with unit tests added but not yet run. The Portainer proxy operations and MCP integration are not yet implemented. See [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
+**Release 2 foundation in progress.** Shared bearer authentication is merged to `master`. Its first GitHub Actions run failed because the Spring context smoke test lacked a test-only token; a follow-up fixes the test configuration and CI verification is pending. The fixed inbound API contract and initial default-deny request guard are present. Portainer operations, upstream integration and MCP integration remain unimplemented. See [docs/PROJECT-STATUS.md](docs/PROJECT-STATUS.md).
 
 ## Technology
 
