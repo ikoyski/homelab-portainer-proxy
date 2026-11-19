@@ -16,10 +16,10 @@ class ProxyDtoSerializationTests {
     @Test
     void serializesOnlyExplicitlyDeclaredInventoryFields() throws Exception {
         InventoryDto inventory = new InventoryDto(
-                List.of(new HostDto("util-pve", HostConnectivity.UP, "29.1.3", "2.45.4", null)),
-                List.of(new ContainerDto("util-pve", "container-id", "sample", "nginx:latest",
+                List.of(new HostDto("host-a", HostConnectivity.UP, "29.1.3", "2.45.4", null)),
+                List.of(new ContainerDto("host-a", "container-id", "sample", "nginx:latest",
                         "running", "healthy", 0, "2026-11-18T10:00:00Z", 3600L)),
-                List.of(new NetworkDto("util-pve", "bridge", "bridge",
+                List.of(new NetworkDto("host-a", "bridge", "bridge",
                         List.of("sample"), List.of(new PublishedPortDto(8080, 80, "tcp")))));
 
         JsonNode root = objectMapper.readTree(objectMapper.writeValueAsBytes(inventory));
