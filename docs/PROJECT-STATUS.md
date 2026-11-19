@@ -39,7 +39,7 @@ The request filter is an early guard for the `/v1` URL space. It is not caller a
 1. Caller authentication mechanism and network placement.
 2. Exact private host-key allowlist and mapping to discovered Portainer endpoint IDs.
 3. Portainer credential type and least-privilege user on the installed edition.
-4. DTO Java records, controller behavior, response-size cap, timeouts and concurrency limits.
+4. Controller behavior, upstream-to-DTO mapping, response-size cap, timeouts and concurrency limits.
 5. Management port value, to be taken from the intended private runtime configuration.
 6. Java trust for the self-signed Portainer certificate (private runtime truststore).
 7. License choice (operator).
