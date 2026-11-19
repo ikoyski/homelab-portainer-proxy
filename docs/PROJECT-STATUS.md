@@ -12,7 +12,7 @@
 |---|---|---|
 | Initial skeleton | Built locally | The operator reported a successful initial Maven build. |
 | API contract | Defined on review branch | See `docs/architecture/inbound-api-contract.md`; four fixed GET operations and proxy-owned DTO fields. |
-| Request-surface guard | Implemented on review branch | `InboundOperationCatalog` and `ReadOnlyApiFilter` reject unknown paths, non-GET methods and all query strings. |
+| Request-surface guard | Implemented on review branch | `InboundOperationCatalog` and `ReadOnlyApiFilter` reject unknown paths, non-GET methods, all query strings and request bodies. |
 | Rejection / DTO tests | Added on review branch; CI initially exposed a test-source compile error, now corrected; latest run pending | Covers route/method/path/query/body rejection and exact serialized DTO field sets. |
 | GitHub Actions CI | Pending | Verify the review branch workflow before merging. |
 | Response DTO Java records | Implemented on review branch | Explicit Host, Container, Network, PublishedPort and Inventory records; serialization tests assert only allowlisted fields. |
@@ -24,7 +24,7 @@
 
 ## Current implementation boundary
 
-The request filter is an early guard for the `/v1` URL space. It is not caller authentication, configured host allowlist resolution, a complete authorization boundary, or proof of end-to-end read-only behavior. No API controllers exist yet. Do not expose or deploy this service as usable until authentication, host allowlist resolution, response DTO mapping, upstream restrictions and integration tests are implemented.
+The request filter is an early guard for the `/v1` URL space. It is not caller authentication, configured host allowlist resolution, a complete authorization boundary, or proof of end-to-end read-only behavior. No API controllers or upstream-to-DTO mapping exist yet. Do not expose or deploy this service as usable until authentication, host allowlist resolution, handler implementation, upstream restrictions and integration tests are implemented.
 
 ## Settled design requirements (proposed architecture)
 
