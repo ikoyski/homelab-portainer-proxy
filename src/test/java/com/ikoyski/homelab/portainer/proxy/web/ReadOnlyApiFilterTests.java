@@ -95,6 +95,22 @@ class ReadOnlyApiFilterTests {
     }
 
     @Test
+    void rejectsParsedParametersEvenWhenQueryStringIsUnavailable() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setMethod("GET");
+        request.setRequestURI("/v1/hosts");
+        request.setServletPath("/v1/hosts");
+        request.setParameter("unexpected", "value");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+        filter.doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(400);
+        assertThat(chain.getRequest()).isNull();
+    }
+
+    @Test
     void doesNotInterceptPathsOutsideVersionedApi() throws Exception {
         FilterResult result = invoke("POST", "/actuator/health", null);
 
