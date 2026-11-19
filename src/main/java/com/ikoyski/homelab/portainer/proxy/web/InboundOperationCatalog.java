@@ -3,6 +3,7 @@ package com.ikoyski.homelab.portainer.proxy.web;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
 /**
  * The complete inbound operation catalog.
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
  * <p>Keep this catalog deliberately small. Upstream Portainer paths and endpoint IDs
  * must never be added here; they belong exclusively to the upstream adapter.</p>
  */
+@Component
 public final class InboundOperationCatalog {
 
     private static final Pattern HOST_CONTAINERS = Pattern.compile(
@@ -22,13 +24,13 @@ public final class InboundOperationCatalog {
             new Operation("GET", "/v1/inventory", "get_inventory")
     );
 
-    public Optional<Operation> find(String method, String path) {
+    public Optional<Operation> find(String path) {
         if (path == null) {
             return Optional.empty();
         }
 
         for (Operation operation : OPERATIONS) {
-            if (operation.path().equals(path)) {
+            if (operation.pathTemplate().equals(path)) {
                 return Optional.of(operation);
             }
         }
